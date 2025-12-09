@@ -375,17 +375,75 @@
             margin-top: 12px;
         }
 
+        .set-badge-container {
+            position: relative;
+        }
+
         .set-badge {
             background: #e9ecef;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.8rem;
             color: #495057;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .set-badge.completed {
             background: var(--success);
             color: white;
+        }
+
+        .edit-set-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 4px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .edit-set-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .set-edit-mode {
+            background: white;
+            border: 2px solid var(--primary);
+            padding: 12px;
+            border-radius: var(--radius);
+            margin-top: 8px;
+        }
+
+        .set-edit-inputs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .set-edit-input {
+            flex: 1;
+            min-width: 80px;
+            padding: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .set-edit-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            min-height: 32px;
         }
 
         .rest-timer {
@@ -1311,9 +1369,17 @@
                     </div>
 
                     <div class="set-history">
-                        ${exercise.completedSets.map((set, i) => 
-                            `<span class="set-badge completed">Set ${i + 1}: ${set.weight > 0 ? set.weight + 'lbs × ' : ''}${set.reps} reps (RPE ${set.rpe})</span>`
-                        ).join('')}
+                        ${exercise.completedSets.map((set, i) => {
+                            const setKey = `edit-${exerciseIndex}-${i}`;
+                            return `
+                                <div class="set-badge-container" id="set-${exerciseIndex}-${i}">
+                                    <span class="set-badge completed">
+                                        Set ${i + 1}: ${set.weight > 0 ? set.weight + 'lbs × ' : ''}${set.reps} reps (RPE ${set.rpe})
+                                        <button class="edit-set-btn" onclick="editSet(${exerciseIndex}, ${i})" title="Edit set">✏️</button>
+                                    </span>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 </div>
             `;
@@ -1704,6 +1770,105 @@
                     alert('All data cleared successfully!');
                 }
             }
+        }
+
+        // Edit Set Functions
+        function editSet(exerciseIndex, setIndex) {
+            if (!appState.currentWorkout || !appState.currentWorkout.exercises) {
+                console.error('No current workout loaded');
+                return;
+            }
+
+            const exercise = appState.currentWorkout.exercises[exerciseIndex];
+            const set = exercise.completedSets[setIndex];
+            
+            const container = document.getElementById(`set-${exerciseIndex}-${setIndex}`);
+            if (!container) return;
+
+            // Create edit UI
+            container.innerHTML = `
+                <div class="set-edit-mode">
+                    <div style="font-size: 0.85rem; margin-bottom: 8px; font-weight: 600;">Edit Set ${setIndex + 1}</div>
+                    <div class="set-edit-inputs">
+                        ${set.weight > 0 ? `
+                            <div>
+                                <label style="font-size: 0.75rem; color: #6c757d;">Weight (lbs)</label>
+                                <input type="number" id="edit-weight-${exerciseIndex}-${setIndex}" class="set-edit-input" value="${set.weight}" step="2.5" min="0">
+                            </div>
+                        ` : ''}
+                        <div>
+                            <label style="font-size: 0.75rem; color: #6c757d;">Reps</label>
+                            <input type="number" id="edit-reps-${exerciseIndex}-${setIndex}" class="set-edit-input" value="${set.reps}" min="1" max="50">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: #6c757d;">RPE</label>
+                            <input type="number" id="edit-rpe-${exerciseIndex}-${setIndex}" class="set-edit-input" value="${set.rpe}" min="6" max="10" step="0.5">
+                        </div>
+                    </div>
+                    <div class="set-edit-actions">
+                        <button class="btn btn-success btn-small" onclick="saveSetEdit(${exerciseIndex}, ${setIndex})">✓ Save</button>
+                        <button class="btn btn-secondary btn-small" onclick="cancelSetEdit(${exerciseIndex}, ${setIndex})">✗ Cancel</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveSetEdit(exerciseIndex, setIndex) {
+            if (!appState.currentWorkout || !appState.currentWorkout.exercises) {
+                console.error('No current workout loaded');
+                return;
+            }
+
+            const exercise = appState.currentWorkout.exercises[exerciseIndex];
+            const weightInput = document.getElementById(`edit-weight-${exerciseIndex}-${setIndex}`);
+            const repsInput = document.getElementById(`edit-reps-${exerciseIndex}-${setIndex}`);
+            const rpeInput = document.getElementById(`edit-rpe-${exerciseIndex}-${setIndex}`);
+
+            if (!repsInput || !rpeInput) {
+                console.error('Edit inputs not found');
+                return;
+            }
+
+            const newWeight = weightInput ? parseFloat(weightInput.value) || 0 : 0;
+            const newReps = parseInt(repsInput.value) || 0;
+            const newRpe = parseFloat(rpeInput.value) || 8;
+
+            if (newReps <= 0) {
+                alert('Reps must be greater than 0');
+                return;
+            }
+
+            if (newRpe < 6 || newRpe > 10) {
+                alert('RPE must be between 6 and 10');
+                return;
+            }
+
+            // Update the set data
+            exercise.completedSets[setIndex] = {
+                weight: newWeight,
+                reps: newReps,
+                rpe: newRpe,
+                timestamp: exercise.completedSets[setIndex].timestamp, // Keep original timestamp
+                edited: true,
+                editedAt: new Date().toISOString()
+            };
+
+            // Update in storage
+            const key = `${appState.currentWeek}-${appState.currentDay}-${exercise.id}`;
+            appState.completedSets[key] = exercise.completedSets;
+
+            // Save to localStorage
+            saveAppState();
+
+            console.log(`✏️ Set ${setIndex + 1} edited: ${newWeight}lbs × ${newReps} reps @ RPE ${newRpe}`);
+
+            // Reload workout to show changes
+            loadWorkout();
+        }
+
+        function cancelSetEdit(exerciseIndex, setIndex) {
+            // Simply reload the workout to restore original display
+            loadWorkout();
         }
 
         // Local Storage Functions
