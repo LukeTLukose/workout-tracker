@@ -1057,7 +1057,17 @@
             'preacher-curls': { name: 'Preacher Curls (Incline Bench Setup)', sets: 3, reps: [10, 12], baseWeight: 30, restTime: 90, muscles: ['Biceps'], equipment: 'Incline Bench + Dumbbells', progression: 'Add weight or slow negatives', load: '25-40 lbs per dumbbell' },
             'resistance-band-rows': { name: 'Resistance Band Rows', sets: 3, reps: [12, 15], baseWeight: 0, restTime: 60, muscles: ['Lats', 'Rhomboids'], equipment: 'Resistance Band', progression: 'Increase band resistance or add pause' },
             'concentration-curls': { name: 'Concentration Curls', sets: 3, reps: [12, 15], baseWeight: 25, restTime: 60, muscles: ['Biceps'], equipment: 'Dumbbells', progression: 'Add weight or increase reps', load: '20-35 lbs per dumbbell' },
-            'farmers-walks': { name: 'Farmers Walks', sets: 3, reps: [30, 30], baseWeight: 60, restTime: 90, muscles: ['Grip', 'Core'], equipment: 'Dumbbells', progression: 'Add weight or increase distance', load: '40%+ 1RM per dumbbell' }
+            'farmers-walks': { name: 'Farmers Walks', sets: 3, reps: [30, 30], baseWeight: 60, restTime: 90, muscles: ['Grip', 'Core'], equipment: 'Dumbbells', progression: 'Add weight or increase distance', load: '40%+ 1RM per dumbbell' },
+
+            // Ab Exercises (Weeks 6-24)
+            'hanging-leg-raises': { name: 'Hanging Leg Raises (Straight Legs)', sets: 3, reps: [10, 15], baseWeight: 0, restTime: 90, muscles: ['Lower Abs'], equipment: 'Pull-up Bar', progression: 'Add ankle weights or L-sit holds' },
+            'reverse-crunches': { name: 'Reverse Crunches', sets: 3, reps: [15, 20], baseWeight: 0, restTime: 60, muscles: ['Lower Abs'], equipment: 'Floor or Decline Bench', progression: 'Add weight between feet' },
+            'mountain-climbers': { name: 'Mountain Climbers', sets: 3, reps: [20, 20], baseWeight: 0, restTime: 60, muscles: ['Lower Abs', 'Core'], equipment: 'Bodyweight', progression: 'Increase speed' },
+            'weighted-decline-crunches': { name: 'Weighted Decline Crunches', sets: 3, reps: [15, 20], baseWeight: 10, restTime: 60, muscles: ['Upper Abs'], equipment: 'Decline Bench + Dumbbell', progression: 'Increase weight (start 10-25 lbs)' },
+            'weighted-crunches': { name: 'Weighted Crunches', sets: 3, reps: [15, 20], baseWeight: 10, restTime: 60, muscles: ['Upper Abs'], equipment: 'Floor + Dumbbell', progression: 'Increase weight' },
+            'russian-twists': { name: 'Russian Twists (Heavy)', sets: 3, reps: [20, 20], baseWeight: 25, restTime: 60, muscles: ['Obliques'], equipment: 'Dumbbell', progression: 'Increase weight (25-45 lbs)' },
+            'bicycle-crunches': { name: 'Bicycle Crunches', sets: 3, reps: [20, 20], baseWeight: 0, restTime: 60, muscles: ['Obliques', 'Lower Abs'], equipment: 'Bodyweight', progression: 'Slow tempo, hold at peak' },
+            'side-plank-hip-dips': { name: 'Side Plank with Hip Dips', sets: 3, reps: [12, 15], baseWeight: 0, restTime: 60, muscles: ['Obliques'], equipment: 'Bodyweight', progression: 'Add weight on hip' }
         };
 
         // Global Warmup and Cooldown Protocols
@@ -1106,12 +1116,12 @@
                 description: 'Increase training intensity and volume progressively with power development',
                 weeks: [5, 6, 7, 8, 9, 10, 11, 12],
                 workouts: {
-                    1: { name: 'Push Focus', type: 'workout', exercises: ['barbell-bench-press', 'barbell-overhead-press', 'incline-dumbbell-press', 'lateral-raises', 'dumbbell-tricep-extensions', 'dips'] },
-                    2: { name: 'Pull Focus', type: 'workout', exercises: ['deadlifts', 'pull-ups', 'bent-over-barbell-rows', 'dumbbell-rows', 'barbell-curls', 'dumbbell-hammer-curls'] },
-                    3: { name: 'Legs Focus', type: 'workout', exercises: ['barbell-squats', 'romanian-deadlifts', 'dumbbell-bulgarian-split-squats', 'dumbbell-lunges', 'dumbbell-calf-raises', 'barbell-hip-thrusts'] },
-                    4: { name: 'Upper Body Power', type: 'power', exercises: ['barbell-high-pull', 'dumbbell-push-press', 'barbell-bent-over-row-power', 'dumbbell-alternating-uppercuts', 'barbell-push-press', 'dumbbell-renegade-rows'] },
-                    5: { name: 'Lower Body Power', type: 'power', exercises: ['barbell-jump-squats', 'dumbbell-single-leg-rdl-knee-drive', 'barbell-hang-clean', 'dumbbell-reverse-lunges-jump', 'barbell-deadlifts-explosive', 'dumbbell-lateral-bounds'] },
-                    6: { name: 'Active Recovery', type: 'recovery', activities: ['Light cardio activities (walking, swimming, cycling)', 'Duration: 20-30 minutes at easy pace', 'Optional stretching or yoga'] },
+                    1: { name: 'Push Focus', type: 'workout', exercises: ['barbell-bench-press', 'barbell-overhead-press', 'incline-dumbbell-press', 'lateral-raises', 'dumbbell-tricep-extensions', 'dips', 'weighted-decline-crunches'] },
+                    2: { name: 'Pull Focus', type: 'workout', exercises: ['deadlifts', 'pull-ups', 'bent-over-barbell-rows', 'dumbbell-rows', 'barbell-curls', 'dumbbell-hammer-curls', 'hanging-leg-raises'] },
+                    3: { name: 'Legs Focus', type: 'workout', exercises: ['barbell-squats', 'romanian-deadlifts', 'dumbbell-bulgarian-split-squats', 'dumbbell-lunges', 'dumbbell-calf-raises', 'barbell-hip-thrusts', 'russian-twists'] },
+                    4: { name: 'Upper Body Power', type: 'power', exercises: ['barbell-high-pull', 'dumbbell-push-press', 'barbell-bent-over-row-power', 'dumbbell-alternating-uppercuts', 'barbell-push-press', 'dumbbell-renegade-rows', 'bicycle-crunches'] },
+                    5: { name: 'Lower Body Power', type: 'power', exercises: ['barbell-jump-squats', 'dumbbell-single-leg-rdl-knee-drive', 'barbell-hang-clean', 'dumbbell-reverse-lunges-jump', 'barbell-deadlifts-explosive', 'dumbbell-lateral-bounds', 'reverse-crunches'] },
+                    6: { name: 'Active Recovery', type: 'workout', exercises: ['mountain-climbers', 'side-plank-hip-dips', 'weighted-crunches'] },
                     7: { name: 'Complete Rest', type: 'rest', description: 'Full rest day for recovery. Focus on sleep, nutrition, and hydration. Light stretching optional.' }
                 }
             },
@@ -1120,12 +1130,12 @@
                 description: 'Advanced training split focusing on specific muscle groups with high volume',
                 weeks: [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
                 workouts: {
-                    1: { name: 'Push A (Chest Focus)', type: 'workout', exercises: ['barbell-bench-press', 'incline-dumbbell-press', 'dumbbell-flyes', 'barbell-overhead-press', 'lateral-raises', 'tricep-dips', 'close-grip-bench-press', 'overhead-tricep-extensions'] },
-                    2: { name: 'Pull A (Back Width Focus)', type: 'workout', exercises: ['pull-ups', 'bent-over-barbell-rows', 'dumbbell-rows', 'wide-grip-pull-ups', 'face-pulls', 'barbell-curls', 'hammer-curls', 'reverse-flyes'] },
-                    3: { name: 'Legs A (Quad/Glute Focus)', type: 'workout', exercises: ['back-squats', 'romanian-deadlifts', 'bulgarian-split-squats', 'goblet-squats', 'walking-lunges', 'calf-raises', 'glute-bridges-loaded', 'wall-sit'] },
-                    4: { name: 'Push B (Shoulder Focus)', type: 'workout', exercises: ['overhead-press-seated', 'incline-dumbbell-press', 'arnold-press', 'lateral-raises-leaning', 'rear-delt-flyes', 'diamond-push-ups', 'tricep-overhead-extension-single', 'upright-rows'] },
-                    5: { name: 'Pull B (Back Thickness Focus)', type: 'workout', exercises: ['deadlifts-conventional', 'chest-supported-rows', 'dumbbell-rows-heavy', 'barbell-shrugs', 'preacher-curls', 'resistance-band-rows', 'concentration-curls', 'farmers-walks'] },
-                    6: { name: 'Active Recovery', type: 'recovery', activities: ['Light cardio activities (walking, swimming, cycling)', 'Duration: 20-30 minutes at easy pace', 'Optional stretching or yoga'] },
+                    1: { name: 'Push A (Chest Focus)', type: 'workout', exercises: ['barbell-bench-press', 'incline-dumbbell-press', 'dumbbell-flyes', 'barbell-overhead-press', 'lateral-raises', 'tricep-dips', 'close-grip-bench-press', 'overhead-tricep-extensions', 'weighted-decline-crunches', 'russian-twists'] },
+                    2: { name: 'Pull A (Back Width Focus)', type: 'workout', exercises: ['pull-ups', 'bent-over-barbell-rows', 'dumbbell-rows', 'wide-grip-pull-ups', 'face-pulls', 'barbell-curls', 'hammer-curls', 'reverse-flyes', 'hanging-leg-raises', 'bicycle-crunches'] },
+                    3: { name: 'Legs A (Quad/Glute Focus)', type: 'workout', exercises: ['back-squats', 'romanian-deadlifts', 'bulgarian-split-squats', 'goblet-squats', 'walking-lunges', 'calf-raises', 'glute-bridges-loaded', 'wall-sit', 'reverse-crunches', 'weighted-crunches'] },
+                    4: { name: 'Push B (Shoulder Focus)', type: 'workout', exercises: ['overhead-press-seated', 'incline-dumbbell-press', 'arnold-press', 'lateral-raises-leaning', 'rear-delt-flyes', 'diamond-push-ups', 'tricep-overhead-extension-single', 'upright-rows', 'side-plank-hip-dips', 'mountain-climbers'] },
+                    5: { name: 'Pull B (Back Thickness Focus)', type: 'workout', exercises: ['deadlifts-conventional', 'chest-supported-rows', 'dumbbell-rows-heavy', 'barbell-shrugs', 'preacher-curls', 'resistance-band-rows', 'concentration-curls', 'farmers-walks', 'hanging-leg-raises', 'russian-twists'] },
+                    6: { name: 'Active Recovery', type: 'workout', exercises: ['bicycle-crunches', 'reverse-crunches', 'weighted-crunches'] },
                     7: { name: 'Complete Rest', type: 'rest', description: 'Full rest day for recovery. Focus on sleep, nutrition, and hydration. Light stretching optional.' }
                 }
             }
@@ -1447,6 +1457,33 @@
                 html += createExerciseCard(exercise, exerciseIndex);
             });
 
+            // Add recovery info box for Day 6 in weeks 6-24 (Phases 2 & 3)
+            if (dayNumber === 6 && appState.currentWeek >= 6) {
+                html += `
+                    <div class="warmup-cooldown" style="cursor: pointer; user-select: none;" onclick="toggleRecoveryInfo()">
+                        <h4 id="recovery-header">
+                            <span id="recovery-arrow" style="display: inline-block; transition: transform 0.2s;">▶</span>
+                            🏃‍♂️ Active Recovery Day
+                        </h4>
+                        <div id="recovery-content" style="display: none; margin-top: 10px;">
+                            <h4 style="margin-top: 0;">Recommended Activities (in addition to ab work):</h4>
+                            <ul>
+                                <li>Light cardio activities (walking, swimming, cycling)</li>
+                                <li>Duration: 20-30 minutes at easy pace</li>
+                                <li>Optional stretching or yoga</li>
+                            </ul>
+                            <h4>Benefits:</h4>
+                            <ul>
+                                <li>Improves circulation</li>
+                                <li>Reduces muscle soreness</li>
+                                <li>Maintains movement patterns</li>
+                                <li>Mental relaxation</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+
             // Add cooldown section
             html += `
                 <div class="warmup-cooldown">
@@ -1722,6 +1759,19 @@
                 appState.restTimer = null;
             }
             document.getElementById('rest-timer').classList.remove('active');
+        }
+
+        function toggleRecoveryInfo() {
+            const content = document.getElementById('recovery-content');
+            const arrow = document.getElementById('recovery-arrow');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.style.transform = 'rotate(90deg)';
+            } else {
+                content.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+            }
         }
 
         function completeRecoveryDay() {
