@@ -980,6 +980,21 @@
             startDate: null
         };
 
+        // Demo video links (loaded from demo-links.json)
+        let demoLinks = {};
+
+        // Load demo links from JSON file
+        async function loadDemoLinks() {
+            try {
+                const response = await fetch('demo-links.json');
+                if (response.ok) {
+                    demoLinks = await response.json();
+                }
+            } catch (error) {
+                console.log('Demo links file not found, continuing without demo videos');
+            }
+        }
+
         // Exercise Database with all exercises for complete 24-week program
         const EXERCISES = {
             // Phase 1 Exercises (Foundation Building)
@@ -1554,7 +1569,10 @@
                 <div class="card workout-card ${cardClass}">
                     <div class="exercise-header">
                         <div>
-                            <h3 class="exercise-name">${exercise.name}</h3>
+                            <h3 class="exercise-name">
+                                ${exercise.name}
+                                ${demoLinks[exercise.id] ? `<a href="${demoLinks[exercise.id]}" target="_blank" rel="noopener noreferrer" style="margin-left: 8px; text-decoration: none; font-size: 1rem;" title="Watch demo video">▶️</a>` : ''}
+                            </h3>
                             <div class="exercise-details">
                                 ${exercise.sets} sets × ${exercise.reps[0]}-${exercise.reps[1]} reps ${exercise.baseWeight > 0 ? `@ ${exercise.baseWeight} lbs` : '(bodyweight)'}
                                 <br>Week ${appState.currentWeek}, Day ${appState.currentDay}
@@ -2512,8 +2530,11 @@
         }
 
         // Initialize App
-        function initApp() {
+        async function initApp() {
             try {
+                // Load demo video links
+                await loadDemoLinks();
+                
                 loadAppState();
                 
                 // Set start date if first time user
@@ -2540,6 +2561,7 @@
                 console.log('Current Phase:', appState.currentPhase);
                 console.log('Current Week:', appState.currentWeek);
                 console.log('Total exercises available:', Object.keys(EXERCISES).length);
+                console.log('Demo links loaded:', Object.keys(demoLinks).length);
                 console.log('Start date:', appState.startDate);
             } catch (error) {
                 console.error('Failed to initialize app:', error);
