@@ -11,15 +11,28 @@ Access the app: `https://LukeTLukose.github.io/workout-tracker`
 
 ## 📱 Features
 
+### Core Functionality
 - **Complete 24-Week Program** - Three progressive training phases
 - **80+ Exercises** - Comprehensive exercise database with progression guidance
 - **Set Tracking** - Log weight, reps, and RPE for every set
+- **Edit & Delete Sets** - Modify completed sets inline, fix typos or errors
 - **Rest Timer** - Built-in countdown timer between sets
 - **Progress Dashboard** - Track total workouts, consistency rate, and phase progress
-- **Data Export** - Export workout history as JSON or CSV
 - **Mobile Optimized** - Responsive design for phone and tablet use
 - **Offline Capable** - Works without internet connection once loaded
 - **Local Storage** - All data saved locally in your browser
+
+### Smart Training Features
+- **Previous Max Display** - View your last workout performance for each exercise
+- **Dynamic Weight Suggestion** - Auto-suggests weight based on double progression logic
+- **Demo Video Links** - One-click access to YouTube form demonstrations for every exercise
+- **Ab Exercise Integration** - Daily ab work in weeks 6-24 for core development
+
+### Data Management
+- **Import/Export Data** - Transfer workout history via JSON or CSV formats
+- **CSV Export** - Generate spreadsheet-friendly reports for analysis
+- **JSON Backup** - Complete data backup for migration or recovery
+- **Data Portability** - Move workout data between devices seamlessly
 
 ## 🏋️‍♂️ Program Structure
 
@@ -34,26 +47,26 @@ Build foundational strength and movement patterns with moderate weights and focu
 - Active Recovery Days
 
 ### Phase 2: Progressive Loading (Weeks 5-12)
-Increase training intensity and volume with power development focus.
+Increase training intensity and volume with power development focus. **Ab exercises added to every workout.**
 
 **Training Split:**
-- Push Focus
-- Pull Focus
-- Legs Focus
-- Upper Body Power
-- Lower Body Power
-- Active Recovery Days
+- Push Focus + Abs
+- Pull Focus + Abs
+- Legs Focus + Abs
+- Upper Body Power + Abs
+- Lower Body Power + Abs
+- Active Recovery (Ab-focused workout)
 
 ### Phase 3: Specialized Push/Pull/Legs (Weeks 13-24)
-Advanced training split with high volume and specialized muscle group focus.
+Advanced training split with high volume and specialized muscle group focus. **2 ab exercises per workout day.**
 
 **Training Split:**
-- Push A (Chest Focus)
-- Pull A (Back Width)
-- Legs A (Quad/Glute)
-- Push B (Shoulder Focus)
-- Pull B (Back Thickness)
-- Active Recovery Days
+- Push A (Chest Focus) + Abs
+- Pull A (Back Width) + Abs
+- Legs A (Quad/Glute) + Abs
+- Push B (Shoulder Focus) + Abs
+- Pull B (Back Thickness) + Abs
+- Active Recovery (Ab-focused workout)
 
 ## 📈 Progressive Overload Strategy
 
@@ -63,6 +76,12 @@ Advanced training split with high volume and specialized muscle group focus.
 3. Once all sets hit top range, increase weight by 2.5-5 lbs
 4. Return to bottom of rep range and repeat
 
+**Smart Weight Suggestions:**
+- App automatically suggests weight based on your last workout
+- Main lifts (bench, squat, deadlift, overhead press): +5 lbs progression
+- Accessory exercises: +2.5 lbs progression
+- Displays final set from previous workout for reference
+
 **RPE Tracking:**
 Rate of Perceived Exertion (6-10 scale) helps manage training intensity and prevent overtraining.
 
@@ -70,23 +89,37 @@ Rate of Perceived Exertion (6-10 scale) helps manage training intensity and prev
 
 ### Installation
 1. **Clone or Download** this repository
-2. **Open `index.html`** in any modern web browser
-3. **Bookmark the page** for easy access
-4. **On Mobile:** Add to home screen for app-like experience
+2. **Ensure both files are present:**
+   - `index.html` (main app)
+   - `demo-links.json` (exercise video URLs)
+3. **Open `index.html`** in any modern web browser
+4. **Bookmark the page** for easy access
+5. **On Mobile:** Add to home screen for app-like experience
 
 ### Daily Workflow
 1. Select your current week and day
 2. Follow the warmup protocol
-3. Complete each exercise, logging weight/reps/RPE
-4. Use rest timer between sets
-5. Complete cooldown
-6. Finish workout to save progress
+3. Review suggested weight (based on previous workout)
+4. Watch demo video if needed (click ▶️ icon)
+5. Complete each exercise, logging weight/reps/RPE
+6. Edit sets if you make a mistake
+7. Use rest timer between sets
+8. Complete cooldown
+9. Finish workout to save progress
 
 ### Data Management
 - **Backup Regularly:** Use "Export All Data (JSON)" in Settings
+- **Import Data:** Transfer workout history from another device
 - **View Progress:** Check Progress tab for workout history and consistency
-- **Export Reports:** Generate CSV files for detailed analysis
+- **Export Reports:** Generate CSV files for detailed analysis in Excel/Sheets
+- **Edit History:** Click edit icon on completed sets to modify data
 - **Reset Data:** Clear all data option available in Settings
+
+### Customizing Demo Videos
+1. Open `demo-links.json` in GitHub or text editor
+2. Find exercise ID (e.g., `"barbell-bench-press"`)
+3. Replace YouTube URL with your preferred video
+4. Save file - changes apply on next page load
 
 ## 🛠️ Technology Stack
 
@@ -94,6 +127,7 @@ Rate of Perceived Exertion (6-10 scale) helps manage training intensity and prev
 - **CSS3** - Responsive design with CSS Grid and Flexbox
 - **Vanilla JavaScript** - No frameworks or dependencies
 - **LocalStorage API** - Client-side data persistence
+- **Fetch API** - JSON file loading for demo videos
 - **PWA Ready** - Progressive Web App capabilities
 
 ## 📊 Data Structure
@@ -111,12 +145,27 @@ All workout data is stored locally in browser localStorage:
 }
 ```
 
+**Files:**
+- `index.html` - Main application (all tracking functionality)
+- `demo-links.json` - Exercise video URL mappings (77 exercises)
+
+## 🎥 Demo Videos
+
+All exercises include YouTube Short demonstrations:
+- **Quick Reference** - Under 1 minute per video
+- **Proper Form** - Focus on technique and safety
+- **Mobile Friendly** - Opens in YouTube app on mobile devices
+- **Easy Editing** - Update URLs in `demo-links.json` file
+
+Featured instructors: Davis Diley (@DavisDiley), Andrew Kwong (@DeltaBolic), and other reputable fitness professionals.
+
 ## 🔒 Privacy & Security
 
 - **100% Local** - All data stored in your browser
 - **No Server** - No data sent to external servers
 - **No Tracking** - No analytics or user tracking
 - **Offline First** - Works completely offline after initial load
+- **Your Data, Your Control** - Export anytime, delete anytime
 
 ## 📱 Mobile Installation
 
@@ -137,19 +186,29 @@ All workout data is stored locally in browser localStorage:
 ## 🎓 Usage Tips
 
 - **Consistency is Key** - Follow the 5-day training schedule
-- **Form Over Weight** - Master technique before adding weight
+- **Form Over Weight** - Master technique before adding weight (watch demo videos!)
 - **Track Everything** - Log every set for accurate progression tracking
 - **Use RPE Honestly** - This prevents overtraining and injury
 - **Follow Rest Days** - Recovery is essential for muscle growth
 - **Export Data Weekly** - Regular backups prevent data loss
+- **Review Previous Max** - Check what you did last time before starting
+- **Trust the Suggestions** - Weight recommendations use proven double progression
+- **Edit Mistakes Immediately** - Don't let typos corrupt your progression data
 
 ## 🔄 Updates & Versioning
 
-**Current Version:** Final Production (November 2024)
+**Current Version:** Enhanced Production (December 2024)
+
+**Recent Updates:**
+- ✅ Edit & delete completed sets
+- ✅ Import/Export data (CSV & JSON)
+- ✅ Ab exercises integrated (weeks 6-24)
+- ✅ Previous max display with smart weight suggestions
+- ✅ Demo video links for all exercises
 
 To update your app:
-1. Download latest `index.html`
-2. Replace old file
+1. Download latest files (`index.html` + `demo-links.json`)
+2. Replace old files
 3. Hard refresh browser (Ctrl+Shift+R)
 4. Your data persists automatically
 
@@ -160,10 +219,10 @@ Potential features for future versions:
 - [ ] Body measurement tracking
 - [ ] Progress photos with comparison
 - [ ] Nutrition tracking integration
-- [ ] Exercise video library
 - [ ] Cloud sync option
 - [ ] Social sharing features
 - [ ] Advanced progression analytics
+- [ ] Custom workout builder
 
 ## 🤝 Contributing
 
@@ -182,6 +241,7 @@ This workout program is for informational purposes only. Consult with a healthca
 For questions or issues:
 - Check browser console for error messages
 - Ensure JavaScript is enabled
+- Verify both `index.html` and `demo-links.json` are in same directory
 - Clear browser cache if experiencing issues
 - Export data before troubleshooting
 
