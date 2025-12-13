@@ -1517,6 +1517,10 @@
             const isCompleted = exercise.currentSet >= exercise.sets;
             const cardClass = getPhaseCardClass();
 
+            // Get previous max and weight suggestion
+            const previousMax = getPreviousMaxAndSuggestion(exercise.id, exercise.reps);
+            const displayWeight = previousMax && previousMax.suggestedWeight ? previousMax.suggestedWeight : exercise.baseWeight;
+
             let progressionHtml = '';
             if (exercise.progression) {
                 progressionHtml = `
@@ -1531,6 +1535,17 @@
                 loadHtml = `
                     <div style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; padding: 6px 10px; margin-bottom: 10px; font-size: 0.8rem; color: #721c24;">
                         <strong>Load Guide:</strong> ${exercise.load}
+                    </div>
+                `;
+            }
+
+            // Previous max display
+            let previousMaxHtml = '';
+            if (previousMax && previousMax.finalSet) {
+                const finalSet = previousMax.finalSet;
+                previousMaxHtml = `
+                    <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 8px; margin-bottom: 12px; font-size: 0.85rem;">
+                        <strong>Last time:</strong> Week ${previousMax.week}, Day ${previousMax.day} - ${finalSet.weight}lbs × ${finalSet.reps} reps @ RPE ${finalSet.rpe}
                     </div>
                 `;
             }
@@ -1553,6 +1568,7 @@
 
                     ${loadHtml}
                     ${progressionHtml}
+                    ${previousMaxHtml}
 
                     <div class="${isCompleted ? 'hidden' : ''}" id="logger-${exerciseIndex}">
                         <div class="set-info">
@@ -1563,7 +1579,7 @@
                         ${exercise.baseWeight > 0 ? `
                             <div class="input-group">
                                 <button class="btn-increment" onclick="adjustWeight(${exerciseIndex}, -2.5)">-</button>
-                                <input type="number" id="weight-${exerciseIndex}" value="${exercise.baseWeight}" step="2.5" min="0">
+                                <input type="number" id="weight-${exerciseIndex}" value="${displayWeight}" step="2.5" min="0">
                                 <span class="unit-label">lbs</span>
                                 <button class="btn-increment" onclick="adjustWeight(${exerciseIndex}, 2.5)">+</button>
                             </div>
@@ -1632,6 +1648,80 @@
                 appState.completedSets[key] = [];
             }
             appState.completedSets[key].push(setData);
+        }
+
+        function getPreviousMaxAndSuggestion(exerciseId, targetReps) {
+            // Find last time this exercise was performed (search backwards from current week/day)
+            let previousData = null;
+            let foundWeek = null;
+            let foundDay = null;
+
+            // Search backwards through weeks and days
+            for (let w = appState.currentWeek; w >= 1; w--) {
+                for (let d = 7; d >= 1; d--) {
+                    // Skip current workout
+                    if (w === appState.currentWeek && d === appState.currentDay) continue;
+                    
+                    const sets = getCompletedSets(w, d, exerciseId);
+                    if (sets && sets.length > 0) {
+                        previousData = sets;
+                        foundWeek = w;
+                        foundDay = d;
+                        break;
+                    }
+                }
+                if (previousData) break;
+            }
+
+            if (!previousData || previousData.length === 0) {
+                return null;
+            }
+
+            // Get final set for display
+            const finalSet = previousData[previousData.length - 1];
+
+            // Find highest weight where reps were in target range
+            let highestInRangeWeight = 0;
+            let setsAtHighestWeight = [];
+            
+            previousData.forEach(set => {
+                const reps = parseInt(set.reps);
+                const weight = parseFloat(set.weight);
+                
+                // Check if reps are in target range
+                if (reps >= targetReps[0] && reps <= targetReps[1]) {
+                    if (weight > highestInRangeWeight) {
+                        highestInRangeWeight = weight;
+                        setsAtHighestWeight = [set];
+                    } else if (weight === highestInRangeWeight) {
+                        setsAtHighestWeight.push(set);
+                    }
+                }
+            });
+
+            // Calculate suggested weight
+            let suggestedWeight = highestInRangeWeight;
+            
+            if (highestInRangeWeight > 0 && setsAtHighestWeight.length > 0) {
+                // Check if all sets at highest weight hit top of range
+                const allHitTop = setsAtHighestWeight.every(set => parseInt(set.reps) === targetReps[1]);
+                
+                if (allHitTop) {
+                    // Determine progression amount based on exercise type
+                    const exerciseData = EXERCISES[exerciseId];
+                    const isMainLift = ['barbell-bench-press', 'barbell-squats', 'deadlifts', 'barbell-overhead-press', 
+                                       'deadlifts-conventional', 'back-squats'].includes(exerciseId);
+                    const progression = isMainLift ? 5 : 2.5;
+                    suggestedWeight += progression;
+                }
+            }
+
+            return {
+                week: foundWeek,
+                day: foundDay,
+                finalSet: finalSet,
+                suggestedWeight: suggestedWeight > 0 ? suggestedWeight : null
+            };
         }
 
         function adjustWeight(exerciseIndex, amount) {
