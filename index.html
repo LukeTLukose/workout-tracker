@@ -35,6 +35,88 @@
             user-select: none;
         }
 
+        /* Password Protection Overlay */
+        #passwordOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        #passwordOverlay.hidden {
+            display: none;
+        }
+
+        .password-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .password-box h2 {
+            margin: 0 0 10px 0;
+            color: #343a40;
+        }
+
+        .password-box p {
+            margin: 0 0 25px 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .password-box input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            transition: border-color 0.2s;
+        }
+
+        .password-box input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .password-box button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .password-box button:hover {
+            background: #0056b3;
+        }
+
+        .password-error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .password-error.show {
+            display: block;
+        }
+
         .container {
             max-width: 100%;
             margin: 0;
@@ -730,8 +812,94 @@
             text-align: center;
         }
     </style>
+    <script>
+        // Password Protection System
+        // SHA-256 hash of your password (you'll set this below)
+        // To generate: open browser console and type: generatePasswordHash('your-password-here')
+        
+        const PASSWORD_HASH = 'c82a31a34e524356ffd0be71d694ecd27d7dda4717c47674f051a0fc93695b24'; // Default: 'password'
+        
+        // Helper function to generate password hash (for you to use in console)
+        async function generatePasswordHash(password) {
+            const msgBuffer = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            console.log('Password hash:', hashHex);
+            return hashHex;
+        }
+
+        // Check if already authenticated in this session
+        async function checkAuth() {
+            const isAuthenticated = sessionStorage.getItem('auth') === 'true';
+            if (isAuthenticated) {
+                document.getElementById('passwordOverlay').classList.add('hidden');
+                return true;
+            }
+            return false;
+        }
+
+        // Verify password
+        async function verifyPassword() {
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('passwordError');
+            const password = input.value;
+
+            if (!password) {
+                error.textContent = 'Please enter a password';
+                error.classList.add('show');
+                return;
+            }
+
+            const hash = await generatePasswordHash(password);
+            
+            if (hash === PASSWORD_HASH) {
+                sessionStorage.setItem('auth', 'true');
+                document.getElementById('passwordOverlay').classList.add('hidden');
+                error.classList.remove('show');
+            } else {
+                error.textContent = 'Incorrect password. Please try again.';
+                error.classList.add('show');
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            
+            // Handle Enter key
+            const input = document.getElementById('passwordInput');
+            if (input) {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        verifyPassword();
+                    }
+                });
+                input.focus();
+            }
+
+            // Handle button click
+            const button = document.getElementById('passwordButton');
+            if (button) {
+                button.addEventListener('click', verifyPassword);
+            }
+        });
+    </script>
 </head>
 <body>
+    <!-- Password Protection Overlay -->
+    <div id="passwordOverlay">
+        <div class="password-box">
+            <h2>🔒 Protected App</h2>
+            <p>Enter password to access your workout tracker</p>
+            <input type="password" id="passwordInput" placeholder="Enter password" autocomplete="off">
+            <button id="passwordButton">Unlock</button>
+            <div id="passwordError" class="password-error"></div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>💪 24-Week Muscle Builder</h1>
@@ -1668,6 +1836,40 @@
             appState.completedSets[key].push(setData);
         }
 
+        function roundToAvailableWeight(weight, exerciseId) {
+            if (weight === 0 || !weight) return 0;
+            
+            // Determine equipment type from exercise ID
+            const exerciseName = exerciseId.toLowerCase();
+            const isDumbbell = exerciseName.includes('dumbbell');
+            const isBarbell = exerciseName.includes('barbell');
+            
+            let increment;
+            
+            if (isDumbbell) {
+                // Dumbbells: 2.5 lb increments up to 25, then 5 lb increments
+                increment = weight <= 25 ? 2.5 : 5;
+            } else if (isBarbell) {
+                // Barbell: 10 lb increments (5 lbs per side)
+                increment = 10;
+            } else {
+                // Bodyweight exercises or unknown - no rounding needed
+                return weight;
+            }
+            
+            // Smart rounding: if within 50% of increment, round up; otherwise round down
+            const remainder = weight % increment;
+            const threshold = increment / 2;
+            
+            if (remainder === 0) {
+                return weight; // Already on increment
+            } else if (remainder >= threshold) {
+                return Math.ceil(weight / increment) * increment; // Round up
+            } else {
+                return Math.floor(weight / increment) * increment; // Round down
+            }
+        }
+
         function getPreviousMaxAndSuggestion(exerciseId, targetReps) {
             // Find last time this exercise was performed (search backwards from current week/day)
             let previousData = null;
@@ -1732,6 +1934,11 @@
                     const progression = isMainLift ? 5 : 2.5;
                     suggestedWeight += progression;
                 }
+            }
+
+            // Round suggested weight to available equipment increments
+            if (suggestedWeight > 0) {
+                suggestedWeight = roundToAvailableWeight(suggestedWeight, exerciseId);
             }
 
             return {
