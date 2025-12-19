@@ -88,13 +88,33 @@ Rate of Perceived Exertion (6-10 scale) helps manage training intensity and prev
 ## 🚀 How to Use
 
 ### Installation
-1. **Clone or Download** this repository
-2. **Ensure both files are present:**
+1. Clone or Download this repository
+2. Ensure both files are present:
    - `index.html` (main app)
    - `demo-links.json` (exercise video URLs)
-3. **Open `index.html`** in any modern web browser
-4. **Bookmark the page** for easy access
-5. **On Mobile:** Add to home screen for app-like experience
+3. Set your password (see below)
+4. Open `index.html` in any modern web browser
+5. Enter password to access app
+6. Bookmark the page for easy access
+7. On Mobile: Add to home screen for app-like experience
+
+### Password Protection Setup
+
+The app includes password protection for private development:
+
+**Setting Your Password:**
+1. Open the app in your browser
+2. Press F12 to open Developer Console
+3. Type: `generatePasswordHash('YourPassword123')`
+4. Copy the generated hash
+5. Open `index.html` in text editor
+6. Find line ~824: `const PASSWORD_HASH = '...'`
+7. Replace with your hash
+8. Save and commit to GitHub
+
+**Default Password:** `password` (change immediately!)
+
+**Security Note:** This is client-side JavaScript protection suitable for private development only. Not recommended for production with real customer data. Backend authentication required before launching to paying customers.
 
 ### Daily Workflow
 1. Select your current week and day
@@ -165,6 +185,7 @@ Featured instructors: Davis Diley (@DavisDiley), Andrew Kwong (@DeltaBolic), and
 - **No Server** - No data sent to external servers
 - **No Tracking** - No analytics or user tracking
 - **Offline First** - Works completely offline after initial load
+- **Password Protection** - SHA-256 hashed password for private development access
 - **Your Data, Your Control** - Export anytime, delete anytime
 
 ## 📱 Mobile Installation
@@ -197,14 +218,19 @@ Featured instructors: Davis Diley (@DavisDiley), Andrew Kwong (@DeltaBolic), and
 
 ## 🔄 Updates & Versioning
 
-**Current Version:** Enhanced Production (December 2024)
+**Current Version:** Enhanced Production with Password Protection (December 2024)
 
 **Recent Updates:**
+- ✅ Password protection with SHA-256 hashing
+- ✅ Smart weight rounding for available equipment
+- ✅ All barbell exercises get proper +5 lb progression
 - ✅ Edit & delete completed sets
 - ✅ Import/Export data (CSV & JSON)
 - ✅ Ab exercises integrated (weeks 6-24)
 - ✅ Previous max display with smart weight suggestions
 - ✅ Demo video links for all exercises
+
+**Current Version:** Enhanced Production (December 2024)
 
 To update your app:
 1. Download latest files (`index.html` + `demo-links.json`)
