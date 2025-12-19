@@ -817,7 +817,7 @@
         // SHA-256 hash of your password (you'll set this below)
         // To generate: open browser console and type: generatePasswordHash('your-password-here')
         
-        const PASSWORD_HASH = 'c82a31a34e524356ffd0be71d694ecd27d7dda4717c47674f051a0fc93695b24'; // Default: 'password'
+        const PASSWORD_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // Default: 'password'
         
         // Helper function to generate password hash (for you to use in console)
         async function generatePasswordHash(password) {
@@ -1844,29 +1844,45 @@
             const isDumbbell = exerciseName.includes('dumbbell');
             const isBarbell = exerciseName.includes('barbell');
             
-            let increment;
-            
             if (isDumbbell) {
                 // Dumbbells: 2.5 lb increments up to 25, then 5 lb increments
-                increment = weight <= 25 ? 2.5 : 5;
+                const increment = weight <= 25 ? 2.5 : 5;
+                const remainder = weight % increment;
+                const threshold = increment / 2;
+                
+                if (remainder === 0) {
+                    return weight;
+                } else if (remainder >= threshold) {
+                    return Math.ceil(weight / increment) * increment;
+                } else {
+                    return Math.floor(weight / increment) * increment;
+                }
             } else if (isBarbell) {
-                // Barbell: 10 lb increments (5 lbs per side)
-                increment = 10;
+                // Barbell: 45 lb bar + plates on both sides (10 lb increments minimum)
+                // Available weights: 45, 55, 65, 75, 85, 95, 105, 115, 125... (always end in 5)
+                const barWeight = 45;
+                const plateIncrement = 10; // 5 lbs per side
+                
+                // Subtract bar weight to get plate weight
+                let plateWeight = weight - barWeight;
+                
+                // Round plate weight to nearest 10 lbs
+                const remainder = plateWeight % plateIncrement;
+                const threshold = plateIncrement / 2;
+                
+                if (remainder === 0) {
+                    plateWeight = plateWeight;
+                } else if (remainder >= threshold) {
+                    plateWeight = Math.ceil(plateWeight / plateIncrement) * plateIncrement;
+                } else {
+                    plateWeight = Math.floor(plateWeight / plateIncrement) * plateIncrement;
+                }
+                
+                // Add bar weight back
+                return barWeight + plateWeight;
             } else {
                 // Bodyweight exercises or unknown - no rounding needed
                 return weight;
-            }
-            
-            // Smart rounding: if within 50% of increment, round up; otherwise round down
-            const remainder = weight % increment;
-            const threshold = increment / 2;
-            
-            if (remainder === 0) {
-                return weight; // Already on increment
-            } else if (remainder >= threshold) {
-                return Math.ceil(weight / increment) * increment; // Round up
-            } else {
-                return Math.floor(weight / increment) * increment; // Round down
             }
         }
 
