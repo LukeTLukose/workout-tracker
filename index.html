@@ -1944,9 +1944,8 @@
                 
                 if (allHitTop) {
                     // Determine progression amount based on exercise type
-                    const exerciseData = EXERCISES[exerciseId];
-                    const isMainLift = ['barbell-bench-press', 'barbell-squats', 'deadlifts', 'barbell-overhead-press', 
-                                       'deadlifts-conventional', 'back-squats'].includes(exerciseId);
+                    // All barbell exercises get +5 lbs, accessories get +2.5 lbs
+                    const isMainLift = exerciseId.toLowerCase().includes('barbell');
                     const progression = isMainLift ? 5 : 2.5;
                     suggestedWeight += progression;
                 }
