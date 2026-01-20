@@ -817,7 +817,7 @@
         // SHA-256 hash of your password (you'll set this below)
         // To generate: open browser console and type: generatePasswordHash('your-password-here')
         
-        const PASSWORD_HASH = 'c82a31a34e524356ffd0be71d694ecd27d7dda4717c47674f051a0fc93695b24'; // Default: 'password'
+        const PASSWORD_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // Default: 'password'
         
         // Helper function to generate password hash (for you to use in console)
         async function generatePasswordHash(password) {
@@ -1203,6 +1203,7 @@
             'dumbbell-alternating-uppercuts': { name: 'Dumbbell Alternating Uppercuts (Rotational Power)', sets: 3, reps: [8, 10], baseWeight: 25, restTime: 90, muscles: ['Core', 'Shoulders'], equipment: 'Dumbbells', progression: 'Increase speed or weight every 2 weeks', load: '20-30 lbs per dumbbell', ispower: true },
             'barbell-push-press': { name: 'Barbell Push Press (Compound Power)', sets: 3, reps: [3, 5], baseWeight: 85, restTime: 210, muscles: ['Shoulders', 'Legs'], equipment: 'Barbell', progression: 'Add 2.5 lbs every 2-3 weeks', load: '60-80% 1RM overhead press', ispower: true },
             'dumbbell-renegade-rows': { name: 'Dumbbell Renegade Rows (Unilateral Power)', sets: 3, reps: [6, 8], baseWeight: 30, restTime: 120, muscles: ['Core', 'Lats'], equipment: 'Dumbbells', progression: 'Increase weight or add explosive element', load: '20-35 lbs per dumbbell', ispower: true },
+            'single-arm-plank-rows': { name: 'Single-Arm Plank Rows (Core Stability + Pull)', sets: 3, reps: [6, 8], baseWeight: 30, restTime: 120, muscles: ['Core', 'Lats'], equipment: 'Dumbbells', progression: 'Increase weight or add explosive element', load: '20-35 lbs per dumbbell', ispower: true },
             'barbell-jump-squats': { name: 'Barbell Jump Squats (Primary Power Movement)', sets: 4, reps: [3, 5], baseWeight: 65, restTime: 210, muscles: ['Legs', 'Power'], equipment: 'Barbell + Power Rack', progression: 'Add 5-10 lbs every 2-3 weeks', load: '30-50% 1RM squat', ispower: true },
             'dumbbell-single-leg-rdl-knee-drive': { name: 'Dumbbell Single-Leg RDL to Knee Drive (Unilateral Power)', sets: 4, reps: [5, 8], baseWeight: 30, restTime: 150, muscles: ['Hamstrings', 'Glutes'], equipment: 'Dumbbells', progression: 'Increase weight or add jump element', load: '25-40 lbs per dumbbell', ispower: true },
             'barbell-hang-clean': { name: 'Barbell Hang Clean (Olympic Power Movement)', sets: 4, reps: [3, 5], baseWeight: 95, restTime: 210, muscles: ['Full Body', 'Power'], equipment: 'Barbell', progression: 'Focus on technique then add weight gradually', load: '50-70% 1RM deadlift', ispower: true },
@@ -1583,12 +1584,20 @@
                 day: dayNumber,
                 phase: appState.currentPhase,
                 type: template.type,
-                exercises: template.exercises.map(exerciseId => ({
-                    id: exerciseId,
-                    ...EXERCISES[exerciseId],
-                    completedSets: getCompletedSets(appState.currentWeek, dayNumber, exerciseId) || [],
-                    currentSet: (getCompletedSets(appState.currentWeek, dayNumber, exerciseId) || []).length
-                }))
+                exercises: template.exercises.map(exerciseId => {
+                    // Exercise swap: Replace dumbbell-renegade-rows with single-arm-plank-rows starting Week 8
+                    let actualExerciseId = exerciseId;
+                    if (appState.currentWeek >= 8 && exerciseId === 'dumbbell-renegade-rows') {
+                        actualExerciseId = 'single-arm-plank-rows';
+                    }
+                    
+                    return {
+                        id: actualExerciseId,
+                        ...EXERCISES[actualExerciseId],
+                        completedSets: getCompletedSets(appState.currentWeek, dayNumber, actualExerciseId) || [],
+                        currentSet: (getCompletedSets(appState.currentWeek, dayNumber, actualExerciseId) || []).length
+                    };
+                })
             };
 
             const content = document.getElementById('workout-content');
@@ -1907,6 +1916,24 @@
                     }
                 }
                 if (previousData) break;
+            }
+
+            // Fallback: If looking for single-arm-plank-rows history and found nothing, check renegade rows history
+            if ((!previousData || previousData.length === 0) && exerciseId === 'single-arm-plank-rows') {
+                for (let w = appState.currentWeek; w >= 1; w--) {
+                    for (let d = 7; d >= 1; d--) {
+                        if (w === appState.currentWeek && d === appState.currentDay) continue;
+                        
+                        const sets = getCompletedSets(w, d, 'dumbbell-renegade-rows');
+                        if (sets && sets.length > 0) {
+                            previousData = sets;
+                            foundWeek = w;
+                            foundDay = d;
+                            break;
+                        }
+                    }
+                    if (previousData) break;
+                }
             }
 
             if (!previousData || previousData.length === 0) {
@@ -2870,4 +2897,3 @@
     </script>
 </body>
 </html>
-
