@@ -887,6 +887,9 @@
             }
         });
     </script>
+    
+    <!-- Chart.js Library for Progress Tab Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <!-- Password Protection Overlay -->
@@ -947,53 +950,64 @@
 
         <!-- Progress Tab -->
         <div id="progress-tab" class="tab-content">
+            <!-- Quick Stats Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div id="stat-total-workouts" style="font-size: 2.5rem; font-weight: bold; margin-bottom: 5px;">0</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Total Workouts</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div id="stat-current-week" style="font-size: 2.5rem; font-weight: bold; margin-bottom: 5px;">Week 1</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Current Week</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div id="stat-consistency" style="font-size: 2.5rem; font-weight: bold; margin-bottom: 5px;">0%</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Consistency Rate</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div id="stat-total-volume" style="font-size: 2.5rem; font-weight: bold; margin-bottom: 5px;">0</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Total Volume (lbs)</div>
+                </div>
+            </div>
+
+            <!-- Personal Records Section -->
             <div class="card">
-                <h3>Progress Overview</h3>
-                <div class="progress-stats">
-                    <div class="progress-stat">
-                        <h3 id="total-workouts">0</h3>
-                        <p>Total Workouts</p>
-                    </div>
-                    <div class="progress-stat">
-                        <h3 id="current-phase-display">Phase 1</h3>
-                        <p>Current Phase</p>
-                    </div>
-                    <div class="progress-stat">
-                        <h3 id="total-sets">0</h3>
-                        <p>Total Sets</p>
-                    </div>
-                    <div class="progress-stat">
-                        <h3 id="consistency-rate">0%</h3>
-                        <p>Consistency Rate</p>
+                <h3>🏆 Personal Records</h3>
+                <div id="personal-records-list">
+                    <div class="empty-state">
+                        <p>Complete workouts to track your personal records!</p>
                     </div>
                 </div>
             </div>
 
+            <!-- Weight Progression Chart -->
             <div class="card">
-                <h3>Phase Progress</h3>
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                    <p><strong>Current:</strong> <span id="phase-progress-text">Phase 1: Foundation Building</span></p>
-                    <p><strong>Next Milestone:</strong> <span id="next-milestone">Complete Week 4 to unlock Phase 2</span></p>
-                    <p><strong>Program Goal:</strong> 15-20 lbs muscle gain over 24 weeks</p>
+                <h3>📈 Weight Progression</h3>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Select Exercise:</label>
+                    <select id="exercise-chart-select" onchange="updateWeightChart()" style="width: 100%; padding: 8px; border: 1px solid #dee2e6; border-radius: 6px; font-size: 1rem;">
+                        <option value="">Loading exercises...</option>
+                    </select>
+                </div>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="weight-progression-chart"></canvas>
                 </div>
             </div>
 
+            <!-- Weekly Volume Chart -->
+            <div class="card">
+                <h3>💪 Weekly Volume Tracking</h3>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="volume-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Workouts (Kept from original) -->
             <div class="card">
                 <h3>Recent Workouts</h3>
                 <div id="recent-workouts">
                     <div class="empty-state">
                         <p>No workouts logged yet. Start your first workout!</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Progressive Overload Tracking</h3>
-                <div id="progression-summary">
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                        <p><strong>Current Strategy:</strong> Double Progression Method</p>
-                        <p><strong>Focus:</strong> Increase reps, then weight when hitting top of rep range</p>
-                        <p><strong>Target:</strong> 2.5-5 lbs increase every 2-3 weeks on main lifts</p>
                     </div>
                 </div>
             </div>
@@ -2208,33 +2222,359 @@
         }
 
         // Progress and Stats Functions
+        // Progress and Stats Functions
+        let weightChart = null;
+        let volumeChart = null;
+
         function updateProgressStats() {
+            updateQuickStats();
+            updatePersonalRecords();
+            populateExerciseDropdown();
+            updateWeightChart();
+            updateVolumeChart();
+            updateRecentWorkouts();
+        }
+
+        function updateQuickStats() {
+            // Total Workouts
             const totalWorkouts = appState.workoutHistory.length;
-            document.getElementById('total-workouts').textContent = totalWorkouts;
+            document.getElementById('stat-total-workouts').textContent = totalWorkouts;
             
-            const totalSets = Object.values(appState.completedSets).reduce((sum, sets) => sum + sets.length, 0);
-            document.getElementById('total-sets').textContent = totalSets;
+            // Current Week
+            document.getElementById('stat-current-week').textContent = `Week ${appState.currentWeek}`;
             
-            document.getElementById('current-phase-display').textContent = `Phase ${appState.currentPhase}`;
-            
-            const phase = PROGRAM_PHASES[appState.currentPhase];
-            document.getElementById('phase-progress-text').textContent = `Phase ${appState.currentPhase}: ${phase.name}`;
-            
-            if (appState.currentPhase === 1) {
-                document.getElementById('next-milestone').textContent = 'Complete Week 4 to unlock Phase 2';
-            } else if (appState.currentPhase === 2) {
-                document.getElementById('next-milestone').textContent = 'Complete Week 12 to unlock Phase 3';
-            } else {
-                document.getElementById('next-milestone').textContent = 'Complete Week 24 to finish the program!';
-            }
-            
-            // Calculate consistency rate based on workout days (5 per week)
-            const expectedWorkouts = Math.max(1, (appState.currentWeek - 1) * 5 + Math.max(0, appState.currentDay - 2)); // Subtract 2 for recovery/rest days
+            // Consistency Rate
+            const expectedWorkouts = Math.max(1, (appState.currentWeek - 1) * 5 + Math.max(0, appState.currentDay - 2));
             const actualWorkouts = appState.workoutHistory.filter(w => w.type === 'workout' || w.exercises).length;
             const consistency = Math.min(100, (actualWorkouts / expectedWorkouts * 100)) || 0;
-            document.getElementById('consistency-rate').textContent = `${consistency.toFixed(0)}%`;
+            document.getElementById('stat-consistency').textContent = `${consistency.toFixed(0)}%`;
             
-            updateRecentWorkouts();
+            // Total Volume (all time)
+            let totalVolume = 0;
+            Object.values(appState.completedSets).forEach(sets => {
+                sets.forEach(set => {
+                    totalVolume += (parseFloat(set.weight) || 0) * (parseInt(set.reps) || 0);
+                });
+            });
+            document.getElementById('stat-total-volume').textContent = totalVolume > 1000 
+                ? (totalVolume / 1000).toFixed(1) + 'k' 
+                : Math.round(totalVolume).toLocaleString();
+        }
+
+        function calculatePersonalRecords() {
+            const prs = {};
+            
+            // Go through all completed sets
+            Object.keys(appState.completedSets).forEach(key => {
+                // Key format: "week-day-exerciseId"
+                const parts = key.split('-');
+                if (parts.length < 3) return;
+                
+                const exerciseId = parts.slice(2).join('-'); // Handle exercise IDs with dashes
+                const sets = appState.completedSets[key];
+                
+                sets.forEach(set => {
+                    const weight = parseFloat(set.weight) || 0;
+                    const reps = parseInt(set.reps) || 0;
+                    const week = parseInt(parts[0]);
+                    const day = parseInt(parts[1]);
+                    
+                    if (weight === 0) return; // Skip bodyweight or invalid
+                    
+                    if (!prs[exerciseId] || weight > prs[exerciseId].weight) {
+                        prs[exerciseId] = {
+                            weight: weight,
+                            reps: reps,
+                            week: week,
+                            day: day,
+                            rpe: parseFloat(set.rpe) || 0
+                        };
+                    }
+                });
+            });
+            
+            return prs;
+        }
+
+        function updatePersonalRecords() {
+            const container = document.getElementById('personal-records-list');
+            const prs = calculatePersonalRecords();
+            
+            if (Object.keys(prs).length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>Complete workouts to track your personal records!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort by weight (descending) and take top 10
+            const sortedPRs = Object.entries(prs)
+                .sort((a, b) => b[1].weight - a[1].weight)
+                .slice(0, 10);
+            
+            const html = sortedPRs.map(([exerciseId, pr]) => {
+                const exercise = EXERCISES[exerciseId];
+                const exerciseName = exercise ? exercise.name : exerciseId;
+                
+                return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #f8f9fa; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #28a745;">
+                        <div>
+                            <div style="font-weight: 600; color: #343a40;">${exerciseName}</div>
+                            <div style="font-size: 0.9rem; color: #6c757d;">Week ${pr.week}, Day ${pr.day}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; color: #28a745; font-size: 1.1rem;">${pr.weight} lbs</div>
+                            <div style="font-size: 0.85rem; color: #6c757d;">${pr.reps} reps @ RPE ${pr.rpe}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function populateExerciseDropdown() {
+            const select = document.getElementById('exercise-chart-select');
+            const prs = calculatePersonalRecords();
+            const exercisesWithData = Object.keys(prs);
+            
+            if (exercisesWithData.length === 0) {
+                select.innerHTML = '<option value="">No exercise data yet</option>';
+                return;
+            }
+            
+            // Sort exercises alphabetically
+            exercisesWithData.sort((a, b) => {
+                const nameA = EXERCISES[a] ? EXERCISES[a].name : a;
+                const nameB = EXERCISES[b] ? EXERCISES[b].name : b;
+                return nameA.localeCompare(nameB);
+            });
+            
+            // Set default to Barbell Bench Press if available, otherwise first exercise
+            const defaultExercise = exercisesWithData.includes('barbell-bench-press') 
+                ? 'barbell-bench-press' 
+                : exercisesWithData[0];
+            
+            const options = exercisesWithData.map(exerciseId => {
+                const exercise = EXERCISES[exerciseId];
+                const name = exercise ? exercise.name : exerciseId;
+                const selected = exerciseId === defaultExercise ? 'selected' : '';
+                return `<option value="${exerciseId}" ${selected}>${name}</option>`;
+            }).join('');
+            
+            select.innerHTML = options;
+        }
+
+        function getExerciseProgressionData(exerciseId) {
+            const data = [];
+            
+            // Go through all weeks and days
+            for (let week = 1; week <= appState.currentWeek; week++) {
+                for (let day = 1; day <= 7; day++) {
+                    const key = `${week}-${day}-${exerciseId}`;
+                    const sets = appState.completedSets[key];
+                    
+                    if (sets && sets.length > 0) {
+                        // Get highest weight from this workout
+                        const maxWeight = Math.max(...sets.map(s => parseFloat(s.weight) || 0));
+                        if (maxWeight > 0) {
+                            data.push({
+                                week: week,
+                                day: day,
+                                weight: maxWeight,
+                                label: `Week ${week}, Day ${day}`
+                            });
+                        }
+                    }
+                }
+            }
+            
+            return data;
+        }
+
+        function updateWeightChart() {
+            const select = document.getElementById('exercise-chart-select');
+            const exerciseId = select.value;
+            
+            if (!exerciseId) return;
+            
+            const data = getExerciseProgressionData(exerciseId);
+            const ctx = document.getElementById('weight-progression-chart').getContext('2d');
+            
+            if (weightChart) {
+                weightChart.destroy();
+            }
+            
+            if (data.length === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.font = '16px sans-serif';
+                ctx.fillStyle = '#6c757d';
+                ctx.textAlign = 'center';
+                ctx.fillText('No data available for this exercise', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+            
+            const exercise = EXERCISES[exerciseId];
+            const exerciseName = exercise ? exercise.name : exerciseId;
+            
+            weightChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.label),
+                    datasets: [{
+                        label: exerciseName + ' (lbs)',
+                        data: data.map(d => d.weight),
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#007bff',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + ' lbs';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' lbs';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function getWeeklyVolumeData() {
+            const weeklyVolume = {};
+            
+            // Calculate volume for each week
+            Object.keys(appState.completedSets).forEach(key => {
+                const parts = key.split('-');
+                if (parts.length < 3) return;
+                
+                const week = parseInt(parts[0]);
+                const sets = appState.completedSets[key];
+                
+                if (!weeklyVolume[week]) {
+                    weeklyVolume[week] = 0;
+                }
+                
+                sets.forEach(set => {
+                    const weight = parseFloat(set.weight) || 0;
+                    const reps = parseInt(set.reps) || 0;
+                    weeklyVolume[week] += weight * reps;
+                });
+            });
+            
+            // Convert to array and sort by week
+            const data = Object.entries(weeklyVolume)
+                .map(([week, volume]) => ({
+                    week: parseInt(week),
+                    volume: Math.round(volume)
+                }))
+                .sort((a, b) => a.week - b.week);
+            
+            // Calculate percentage changes
+            data.forEach((item, index) => {
+                if (index > 0) {
+                    const prevVolume = data[index - 1].volume;
+                    const change = ((item.volume - prevVolume) / prevVolume * 100);
+                    item.change = change.toFixed(1);
+                } else {
+                    item.change = null;
+                }
+            });
+            
+            return data;
+        }
+
+        function updateVolumeChart() {
+            const data = getWeeklyVolumeData();
+            const ctx = document.getElementById('volume-chart').getContext('2d');
+            
+            if (volumeChart) {
+                volumeChart.destroy();
+            }
+            
+            if (data.length === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.font = '16px sans-serif';
+                ctx.fillStyle = '#6c757d';
+                ctx.textAlign = 'center';
+                ctx.fillText('Complete workouts to see volume tracking', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+            
+            volumeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => `Week ${d.week}`),
+                    datasets: [{
+                        label: 'Total Volume (lbs)',
+                        data: data.map(d => d.volume),
+                        backgroundColor: 'rgba(0, 123, 255, 0.8)',
+                        borderColor: '#007bff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const dataIndex = context.dataIndex;
+                                    const volume = context.parsed.y.toLocaleString();
+                                    const change = data[dataIndex].change;
+                                    if (change) {
+                                        return `${volume} lbs (${change > 0 ? '+' : ''}${change}%)`;
+                                    }
+                                    return `${volume} lbs`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + ' lbs';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function updateRecentWorkouts() {
@@ -2818,7 +3158,7 @@
         }
 
         // Service Worker Registration with Cache Versioning
-        const CACHE_VERSION = 'v0.2.0'; // UPDATE THIS VERSION WHEN YOU PUSH CHANGES
+        const CACHE_VERSION = 'v0.2.1'; // UPDATE THIS VERSION WHEN YOU PUSH CHANGES
         
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', async () => {
@@ -2958,5 +3298,3 @@
     </script>
 </body>
 </html>
-
-
